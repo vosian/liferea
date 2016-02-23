@@ -1,0 +1,113 @@
+/**
+ * @file gwget_download_manager.h Liferea embedded download manager
+ *
+ * Derived from the original gwget2 1.0.4 sources
+ *
+ * Copyright (C) 2004-2009 David Sedeño Fernández <david@alderia.com>
+ *
+ * Adapted for Liferea
+ *
+ * Copyright (C) 2016  Lars Windolf <lars.windolf@gmx.de>
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU Library General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ */
+ 
+#ifndef _GWGET_DOWNLOAD_MANAGER_H
+#define _GWGET_DOWNLOAD_MANAGER_H
+
+#include <glib.h>
+#include <gtk/gtk.h>
+
+enum {
+	IMAGE_COLUMN,
+	FILENAME_COLUMN,
+	URL_COLUMN,
+	STATE_COLUMN,
+	CURRENTSIZE_COLUMN,
+	TOTALSIZE_COLUMN,
+	PERCENTAGE_COLUMN,
+	TOTALTIME_COLUMN,
+	ELAPSETIME_COLUMN,
+	CURRENTTIME_COLUMN,
+	ESTIMATEDTIME_COLUMN,
+	REMAINTIME_COLUMN,
+	PID_COLUMN,
+	STATE_INT_COLUMN,
+	SPEED_COLUMN,
+	NUM_COLUMNS
+	
+};
+
+enum {
+        TARGET_URI_LIST,
+        TARGET_NETSCAPE_URL,
+        TARGET_TEXT_PLAIN
+};
+                                                                                
+/*
+ * The used enumeration.
+ */
+guint dnd_type;
+
+
+/* target types for dnd */
+static  GtkTargetEntry dragtypes[] = {
+        { "text/uri-list", 	0, TARGET_URI_LIST },
+		{ "x-url/http", 		0, TARGET_NETSCAPE_URL },
+        { "x-url/ftp", 		0, TARGET_NETSCAPE_URL },
+		{ "_NETSCAPE_URL", 	0, TARGET_NETSCAPE_URL }
+};
+
+GtkBuilder *builder;
+
+/* xml of the new download window */
+GtkBuilder *builder_new;
+
+
+/* the model of the GtkTreeView */
+/* declared here for be used to add by GWGET_DOWNLOAD_MANAGER_cb */
+GtkTreeModel *model;
+
+/* List of all current downloads */
+GList *downloads;
+
+/* Tray icon */
+GtkStatusIcon *tray_icon;
+
+/* XML for the preferences gui */
+/* It's here because we must load it from GWGET_DOWNLOAD_MANAGER.c to put */
+/* the options of the column list from Gconf on load */
+GtkBuilder *builder_pref;
+
+/* List of introduced path in save in dialogs */
+GList *save_in_paths;
+
+/* model for the combobox in the "save in" dialog */
+GtkTreeModel *save_in_model;
+
+void GWGET_DOWNLOAD_MANAGER(void);
+void on_GWGET_DOWNLOAD_MANAGER_delete_event(GtkWidget *widget, gpointer data);
+GtkTreeModel* create_model(void);
+void add_columns (GtkTreeView *treeview);
+void gwget_get_defaults_from_gconf(void);
+/* Drag received callback */
+void on_gwget_drag_received(GtkWidget * widget, GdkDragContext * context, int x,
+                     int y, GtkSelectionData * seldata, guint info,
+                     guint time, gpointer data);
+gboolean gwget_remember_window_size_and_position(void);
+gboolean gwget_remember_downloads(void);
+void gwget_quit(void);
+
+#endif

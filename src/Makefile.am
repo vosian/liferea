@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-SUBDIRS = parsers ui fl_sources webkit tests .
+SUBDIRS = parsers ui fl_sources webkit gwget tests .
 
 AM_CPPFLAGS = \
 	-DPACKAGE_DATA_DIR=\""$(datadir)"\" \

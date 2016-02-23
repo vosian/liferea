@@ -42,6 +42,9 @@
 
 /* enclosure handling */
 #define DOWNLOAD_TOOL			"download-tool"
+#define DOWNLOAD_DIR			"download-dir"
+
+
 
 /* feed handling settings */
 #define DEFAULT_MAX_ITEMS		"maxitemcount"
