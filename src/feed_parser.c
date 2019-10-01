@@ -1,7 +1,7 @@
 /**
  * @file feed_parser.c  parsing of different feed formats
  *
- * Copyright (C) 2008-2017 Lars Windolf <lars.windolf@gmx.de>
+ * Copyright (C) 2008-2020 Lars Windolf <lars.windolf@gmx.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,9 +26,7 @@
 #include "metadata.h"
 #include "xml.h"
 #include "parsers/atom10.h"
-#include "parsers/cdf_channel.h"
 #include "parsers/html5_feed.h"
-#include "parsers/pie_feed.h"
 #include "parsers/rss_channel.h"
 
 static GSList *feedHandlers = NULL;	/**< list of available parser implementations */
@@ -45,9 +43,7 @@ feed_parsers_get_list (void)
 		return feedHandlers;
 
 	feedHandlers = g_slist_append (feedHandlers, rss_init_feed_handler ());
-	feedHandlers = g_slist_append (feedHandlers, cdf_init_feed_handler ());
 	feedHandlers = g_slist_append (feedHandlers, atom10_init_feed_handler ());  /* Must be before pie */
-	feedHandlers = g_slist_append (feedHandlers, pie_init_feed_handler ());
 
 	// Do not register HTML5 feed parser here, as it is a HTML parser
 
@@ -70,9 +66,12 @@ feed_type_str_to_fhp (const gchar *str)
 
 	if (!str)
 		return NULL;
+<<<<<<< HEAD
 
 	if (strstr(str, "pie"))
 		return feed_type_str_to_fhp ("atom");
+=======
+>>>>>>> Drop Atom 0.3 (aka Pie) and CDF channel support.
 
 	for(iter = feed_parsers_get_list (); iter != NULL; iter = iter->next) {
 		fhp = (feedHandlerPtr)iter->data;
@@ -162,9 +161,13 @@ feed_parser_ctxt_cleanup (feedParserCtxtPtr ctxt)
 
 /**
  * General feed source parsing function. Parses the passed feed source
+<<<<<<< HEAD
  * and tries to determine the source type. If all feed handlers fail
  * tries to do HTML5 feed extraction. If this also fails starts feed
  * link auto-discovery.
+=======
+ * and tries to determine the source type.
+>>>>>>> Drop Atom 0.3 (aka Pie) and CDF channel support.
  *
  * @param ctxt		feed parsing context
  *
@@ -181,6 +184,11 @@ feed_parse (feedParserCtxtPtr ctxt)
 
 	g_assert (NULL == ctxt->items);
 
+<<<<<<< HEAD
+=======
+	g_assert(NULL == ctxt->items);
+
+>>>>>>> Drop Atom 0.3 (aka Pie) and CDF channel support.
 	ctxt->failed = TRUE;	/* reset on success ... */
 
 	if (ctxt->feed->parseErrors)
@@ -188,18 +196,27 @@ feed_parse (feedParserCtxtPtr ctxt)
 	else
 		ctxt->feed->parseErrors = g_string_new (NULL);
 
+<<<<<<< HEAD
 	/* 1.) try to parse downloaded data as XML and try to read a feed format */
+=======
+	/* try to parse buffer with XML and to create a DOM tree */
+>>>>>>> Drop Atom 0.3 (aka Pie) and CDF channel support.
 	do {
 		if (NULL == xml_parse_feed (ctxt)) {
 			g_string_append_printf (ctxt->feed->parseErrors, _("XML error while reading feed! Feed \"%s\" could not be loaded!"), subscription_get_source (ctxt->subscription));
 			break;
 		}
 
+<<<<<<< HEAD
 		if (NULL == (cur = xmlDocGetRootElement(ctxt->doc))) {
+=======
+		if(NULL == (cur = xmlDocGetRootElement(ctxt->doc))) {
+>>>>>>> Drop Atom 0.3 (aka Pie) and CDF channel support.
 			g_string_append(ctxt->feed->parseErrors, _("Empty document!"));
 			break;
 		}
 
+<<<<<<< HEAD
 		while (cur && xmlIsBlankNode(cur)) {
 			cur = cur->next;
 		}
@@ -208,6 +225,16 @@ feed_parse (feedParserCtxtPtr ctxt)
 			break;
 
 		if (!cur->name) {
+=======
+		while(cur && xmlIsBlankNode(cur)) {
+			cur = cur->next;
+		}
+
+		if(!cur)
+			break;
+
+		if(!cur->name) {
+>>>>>>> Drop Atom 0.3 (aka Pie) and CDF channel support.
 			g_string_append(ctxt->feed->parseErrors, _("Invalid XML!"));
 			break;
 		}
@@ -217,6 +244,21 @@ feed_parse (feedParserCtxtPtr ctxt)
 		while(handlerIter) {
 			feedHandlerPtr handler = (feedHandlerPtr)(handlerIter->data);
 			if(handler && handler->checkFormat && (*(handler->checkFormat))(ctxt->doc, cur)) {
+<<<<<<< HEAD
+=======
+				/* free old temp. parsing data, don't free right after parsing because
+				   it can be used until the last feed request is finished, move me
+				   to the place where the last request in list otherRequests is
+				   finished :-) */
+				g_hash_table_destroy(ctxt->tmpdata);
+				ctxt->tmpdata = g_hash_table_new_full(g_str_hash, g_str_equal, NULL, g_free);
+
+				/* we always drop old metadata */
+				metadata_list_free(ctxt->subscription->metadata);
+				ctxt->subscription->metadata = NULL;
+				ctxt->failed = FALSE;
+
+>>>>>>> Drop Atom 0.3 (aka Pie) and CDF channel support.
 				ctxt->feed->fhp = handler;
 				feed_parser_ctxt_cleanup (ctxt);
 				(*(handler->feedParser)) (ctxt, cur);
@@ -278,7 +320,16 @@ feed_parse (feedParserCtxtPtr ctxt)
 		success = TRUE;
 	}
 
+<<<<<<< HEAD
 	debug_exit ("feed_parse");
+=======
+	if(ctxt->doc) {
+		xmlFreeDoc(ctxt->doc);
+		ctxt->doc = NULL;
+	}
+
+	debug_exit("feed_parse");
+>>>>>>> Drop Atom 0.3 (aka Pie) and CDF channel support.
 
 	return success;
 }
