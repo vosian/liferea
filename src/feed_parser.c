@@ -66,12 +66,6 @@ feed_type_str_to_fhp (const gchar *str)
 
 	if (!str)
 		return NULL;
-<<<<<<< HEAD
-
-	if (strstr(str, "pie"))
-		return feed_type_str_to_fhp ("atom");
-=======
->>>>>>> Drop Atom 0.3 (aka Pie) and CDF channel support.
 
 	for(iter = feed_parsers_get_list (); iter != NULL; iter = iter->next) {
 		fhp = (feedHandlerPtr)iter->data;
@@ -114,7 +108,8 @@ feed_free_parser_ctxt (feedParserCtxtPtr ctxt)
 static gboolean
 feed_parser_auto_discover (feedParserCtxtPtr ctxt)
 {
-	gchar		*source;
+	gchar	*source = NULL;
+	GSList	*links;
 
 	if (ctxt->feed->parseErrors)
 		g_string_truncate (ctxt->feed->parseErrors, 0);
@@ -123,7 +118,9 @@ feed_parser_auto_discover (feedParserCtxtPtr ctxt)
 
 	debug1 (DEBUG_UPDATE, "Starting feed auto discovery (%s)", subscription_get_source (ctxt->subscription));
 
-	source = html_auto_discover_feed (ctxt->data, subscription_get_source (ctxt->subscription));
+	links = html_auto_discover_feed (ctxt->data, subscription_get_source (ctxt->subscription));
+	if (links)
+		source = links->data;	// FIXME: let user choose feed!
 
 	/* FIXME: we only need the !g_str_equal as a workaround after a 404 */
 	if (source && !g_str_equal (source, subscription_get_source (ctxt->subscription))) {
@@ -184,11 +181,6 @@ feed_parse (feedParserCtxtPtr ctxt)
 
 	g_assert (NULL == ctxt->items);
 
-<<<<<<< HEAD
-=======
-	g_assert(NULL == ctxt->items);
-
->>>>>>> Drop Atom 0.3 (aka Pie) and CDF channel support.
 	ctxt->failed = TRUE;	/* reset on success ... */
 
 	if (ctxt->feed->parseErrors)
@@ -196,27 +188,18 @@ feed_parse (feedParserCtxtPtr ctxt)
 	else
 		ctxt->feed->parseErrors = g_string_new (NULL);
 
-<<<<<<< HEAD
 	/* 1.) try to parse downloaded data as XML and try to read a feed format */
-=======
-	/* try to parse buffer with XML and to create a DOM tree */
->>>>>>> Drop Atom 0.3 (aka Pie) and CDF channel support.
 	do {
 		if (NULL == xml_parse_feed (ctxt)) {
 			g_string_append_printf (ctxt->feed->parseErrors, _("XML error while reading feed! Feed \"%s\" could not be loaded!"), subscription_get_source (ctxt->subscription));
 			break;
 		}
 
-<<<<<<< HEAD
 		if (NULL == (cur = xmlDocGetRootElement(ctxt->doc))) {
-=======
-		if(NULL == (cur = xmlDocGetRootElement(ctxt->doc))) {
->>>>>>> Drop Atom 0.3 (aka Pie) and CDF channel support.
 			g_string_append(ctxt->feed->parseErrors, _("Empty document!"));
 			break;
 		}
 
-<<<<<<< HEAD
 		while (cur && xmlIsBlankNode(cur)) {
 			cur = cur->next;
 		}
@@ -225,16 +208,6 @@ feed_parse (feedParserCtxtPtr ctxt)
 			break;
 
 		if (!cur->name) {
-=======
-		while(cur && xmlIsBlankNode(cur)) {
-			cur = cur->next;
-		}
-
-		if(!cur)
-			break;
-
-		if(!cur->name) {
->>>>>>> Drop Atom 0.3 (aka Pie) and CDF channel support.
 			g_string_append(ctxt->feed->parseErrors, _("Invalid XML!"));
 			break;
 		}
@@ -244,21 +217,6 @@ feed_parse (feedParserCtxtPtr ctxt)
 		while(handlerIter) {
 			feedHandlerPtr handler = (feedHandlerPtr)(handlerIter->data);
 			if(handler && handler->checkFormat && (*(handler->checkFormat))(ctxt->doc, cur)) {
-<<<<<<< HEAD
-=======
-				/* free old temp. parsing data, don't free right after parsing because
-				   it can be used until the last feed request is finished, move me
-				   to the place where the last request in list otherRequests is
-				   finished :-) */
-				g_hash_table_destroy(ctxt->tmpdata);
-				ctxt->tmpdata = g_hash_table_new_full(g_str_hash, g_str_equal, NULL, g_free);
-
-				/* we always drop old metadata */
-				metadata_list_free(ctxt->subscription->metadata);
-				ctxt->subscription->metadata = NULL;
-				ctxt->failed = FALSE;
-
->>>>>>> Drop Atom 0.3 (aka Pie) and CDF channel support.
 				ctxt->feed->fhp = handler;
 				feed_parser_ctxt_cleanup (ctxt);
 				(*(handler->feedParser)) (ctxt, cur);
@@ -320,16 +278,7 @@ feed_parse (feedParserCtxtPtr ctxt)
 		success = TRUE;
 	}
 
-<<<<<<< HEAD
 	debug_exit ("feed_parse");
-=======
-	if(ctxt->doc) {
-		xmlFreeDoc(ctxt->doc);
-		ctxt->doc = NULL;
-	}
-
-	debug_exit("feed_parse");
->>>>>>> Drop Atom 0.3 (aka Pie) and CDF channel support.
 
 	return success;
 }
