@@ -158,13 +158,9 @@ feed_parser_ctxt_cleanup (feedParserCtxtPtr ctxt)
 
 /**
  * General feed source parsing function. Parses the passed feed source
-<<<<<<< HEAD
  * and tries to determine the source type. If all feed handlers fail
  * tries to do HTML5 feed extraction. If this also fails starts feed
  * link auto-discovery.
-=======
- * and tries to determine the source type.
->>>>>>> Drop Atom 0.3 (aka Pie) and CDF channel support.
  *
  * @param ctxt		feed parsing context
  *
